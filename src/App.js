@@ -18,7 +18,7 @@ class App extends Component {
   }
   componentDidMount(){
     const db = Fire.database().ref('groups')
-    db.once('value', snap => {
+    db.on('value', snap => {
       
       let items = snap.val()
       let newState = []
@@ -74,6 +74,7 @@ class App extends Component {
             </tr>
           </thead>
           <tbody>
+
             {
               this.state.items.map(item=> {
                 return (
