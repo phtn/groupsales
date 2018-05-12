@@ -27,6 +27,7 @@ class App extends Component {
       // let user = result.user;
       // console.log(agent)
       
+      
       // ...
     }).catch(function(error) {
       // Handle Errors here.
@@ -73,14 +74,23 @@ class App extends Component {
       // console.log(this.state.user)
     })
 
-    auth.onAuthStateChanged(firebaseUser => {
-      // console.log(firebaseUser.email)
-      if (firebaseUser !== null){
-        this.setState({user: firebaseUser.email})
+    auth.onAuthStateChanged(user => {
+      // console.log(user.email)
+      // user ? this.setState(()=>({user})) : this.setState(()=>({user: null}))  
+      
+      if (user !== null){
+        this.setState({user: user.email})
+      } else {
+        this.setState({user: null})
       }
+    
     })
+    
   }
 
+  signOut(){
+    auth.signOut()
+  }
 
   getItems(state){
     console.log(state)
@@ -141,7 +151,14 @@ class App extends Component {
         <Landing 
           sign={(e)=>{
             e.preventDefault()
-            this.signInToGoogle()
+            // console.log(this.state.user === this.state.email)
+            if (this.state.user === this.state.email){
+              this.signOut()
+            } else {
+              this.signInToGoogle()
+              
+              // this.setState({user: null})
+            }
             // console.log(this.state.user)
           }}
           user={this.state.user}
