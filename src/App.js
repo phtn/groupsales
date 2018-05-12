@@ -23,6 +23,9 @@ class App extends Component {
       // This gives you a Google Access Token. You can use it to access the Google API.
       // let token = result.credential.accessToken;
       // console.log(token)
+      if (result){
+        console.log('success!')
+      }
       // The signed-in user info.
       // let user = result.user;
       // console.log(agent)
@@ -31,8 +34,11 @@ class App extends Component {
       // ...
     }).catch(function(error) {
       // Handle Errors here.
-      // let errorCode = error.code;
-      // let errorMessage = error.message;
+      let errorCode = error.code;
+      console.log('code: ', errorCode)
+
+      let errorMessage = error.message;
+      console.error('message', errorMessage)
       // The email of the user's account used.
       // let email = error.email;
       // The firebase.auth.AuthCredential type that was used.
