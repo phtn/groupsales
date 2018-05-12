@@ -75,7 +75,9 @@ class App extends Component {
 
     auth.onAuthStateChanged(firebaseUser => {
       // console.log(firebaseUser.email)
-      this.setState({user: firebaseUser.email})
+      if (firebaseUser !== null){
+        this.setState({user: firebaseUser.email})
+      }
     })
   }
 
