@@ -1,21 +1,53 @@
 import React, { Component } from 'react';
 import Fire from './Fire'
+import firebase from 'firebase'
 import './App.css';
 import './bootstrap.min.css'
 import Landing from './Landing'
 
-
+let provider = new firebase.auth.GoogleAuthProvider()
+const auth = firebase.auth()
 
 class App extends Component {
   constructor(){
     super()
     this.state = {
-      items: []
+      items: [],
+      email: 'clarionsalespa@gmail.com',
+      user: null
     }
   }
-  test(arg){
-    console.log(arg)
+  
+  signInToGoogle(){
+    auth.signInWithPopup(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      // let token = result.credential.accessToken;
+      // console.log(token)
+      // The signed-in user info.
+      // let user = result.user;
+      // console.log(agent)
+      
+      // ...
+    }).catch(function(error) {
+      // Handle Errors here.
+      // let errorCode = error.code;
+      // let errorMessage = error.message;
+      // The email of the user's account used.
+      // let email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      // let credential = error.credential;
+      // ...
+    })
   }
+
+  getUserState(state){
+    if (state === ''){
+      console.log('nothing')
+    } else {
+      console.log(state)
+    }
+  }
+
   componentDidMount(){
     const db = Fire.database().ref('groups')
     db.on('value', snap => {
@@ -34,13 +66,16 @@ class App extends Component {
           rooms: items[item].numberOfRooms,
           nights: items[item].numberOfNights,
           arrival: items[item].arrivalDate,
-          giftbags: items[item].giftbags,
-          request: items[item].specialRequest,
         })
       }
 
       this.setState({items: newState})
-      
+      // console.log(this.state.user)
+    })
+
+    auth.onAuthStateChanged(firebaseUser => {
+      // console.log(firebaseUser.email)
+      this.setState({user: firebaseUser.email})
     })
   }
 
@@ -48,16 +83,10 @@ class App extends Component {
   getItems(state){
     console.log(state)
   }
-  render() {
-    
-   
 
-    return (
-      <div className="App">
-        <Landing/>
-        
-        
-
+  securePieline(){
+    if (this.state.email === this.state.user){
+      return <div>
         <table className="table table-hover">
           <thead>
             <tr>
@@ -69,8 +98,6 @@ class App extends Component {
               <th scope="col">Rooms</th>
               <th scope="col">Nights</th>
               <th scope="col">Arrival</th>
-              <th scope="col">giftbags</th>
-              <th className='col-md-4'scope="col">Special requests</th>
             </tr>
           </thead>
           <tbody>
@@ -87,8 +114,6 @@ class App extends Component {
                     <td>{item.rooms}</td>
                     <td>{item.nights}</td>
                     <td>{item.arrival}</td>
-                    <td>{item.giftbags}</td>
-                    <td className='col-md-6'>{item.request}</td>
                   </tr>
                 )
               })
@@ -96,7 +121,33 @@ class App extends Component {
             
             
           </tbody>
-        </table> 
+        </table>
+      </div>
+    } else {
+      return <div>Failed to Authenticate!</div>
+    }
+  }
+
+  render() {
+    
+   
+
+    return (
+      <div className="App">
+        
+        
+        <Landing 
+          sign={(e)=>{
+            e.preventDefault()
+            this.signInToGoogle()
+            // console.log(this.state.user)
+          }}
+          user={this.state.user}
+        />
+        
+        {this.securePieline()}
+
+         
 
       </div>
     );
