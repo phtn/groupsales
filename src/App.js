@@ -4,6 +4,8 @@ import firebase from 'firebase'
 import './App.css';
 import './bootstrap.min.css'
 import Landing from './Landing'
+import _ from 'lodash'
+import dateformat from 'dateformat'
 
 let provider = new firebase.auth.GoogleAuthProvider()
 const auth = firebase.auth()
@@ -13,6 +15,7 @@ class App extends Component {
     super()
     this.state = {
       items: [],
+      orderByDate: [],
       email: 'clarionsalespa@gmail.com',
       user: null
     }
@@ -23,9 +26,9 @@ class App extends Component {
       // This gives you a Google Access Token. You can use it to access the Google API.
       // let token = result.credential.accessToken;
       // console.log(token)
-      if (result){
-        console.log('success!')
-      }
+      // if (result){
+      //   console.log('success!')
+      // }
       // The signed-in user info.
       // let user = result.user;
       // console.log(agent)
@@ -34,11 +37,11 @@ class App extends Component {
       // ...
     }).catch(function(error) {
       // Handle Errors here.
-      let errorCode = error.code;
-      console.log('code: ', errorCode)
+      // let errorCode = error.code;
+      // console.log('code: ', errorCode)
 
-      let errorMessage = error.message;
-      console.error('message', errorMessage)
+      // let errorMessage = error.message;
+      // console.error('message', errorMessage)
       // The email of the user's account used.
       // let email = error.email;
       // The firebase.auth.AuthCredential type that was used.
@@ -64,7 +67,7 @@ class App extends Component {
       
       for (let item in items){
         newState.push({
-          id: item,
+          id: new Date(item),
           name: items[item].name,
           email: items[item].email,
           phone: items[item].phone,
@@ -75,9 +78,11 @@ class App extends Component {
           arrival: items[item].arrivalDate,
         })
       }
-
+      let byDate = _.orderBy(newState, 'id', 'desc')
       this.setState({items: newState})
-      // console.log(this.state.user)
+      this.setState({orderByDate: byDate})
+      // console.log(typeof(byDate[0].id))
+      // console.log(new Date(byDate[0].id))     
     })
 
     auth.onAuthStateChanged(user => {
@@ -102,12 +107,13 @@ class App extends Component {
     console.log(state)
   }
 
-  securePieline(){
-    if (this.state.email === this.state.user){
+  securePipeline(email, user){
+    if (email === user){
       return <div>
         <table className="table table-hover">
           <thead>
             <tr>
+              <th scope="col">created</th>
               <th scope="col">name</th>
               <th scope="col">email</th>
               <th scope="col">phone</th>
@@ -121,11 +127,12 @@ class App extends Component {
           <tbody>
 
             {
-              this.state.items.map(item=> {
+              this.state.orderByDate.map(item=> {
                 return (
-                  <tr key={item.id} style={{fontSize: 10, color: '#666'}}>
+                  <tr key={item.id} style={{fontSize: 10, color: '#333', maxHeight: 20, height: '10px'}} >
+                    <td>{dateformat(item.id, 'mmm dd yyyy')}</td>
                     <th scope="row">{item.name}</th>
-                    <td>{item.email}</td>
+                    <td onClick={(e)=>console.log(item.email)}>{item.email}</td>
                     <td>{item.phone}</td>
                     <td>{item.group}</td>
                     <td>{item.type}</td>
@@ -134,7 +141,7 @@ class App extends Component {
                     <td>{item.arrival}</td>
                   </tr>
                 )
-              })
+              }) // map
             }
             
             
@@ -142,7 +149,21 @@ class App extends Component {
         </table>
       </div>
     } else {
-      return <div>Failed to Authenticate!</div>
+      return <div style={{marginTop: 50}}>
+        Authentication Required
+        <div className="progress" >
+          <div 
+            className="progress-bar progress-bar-striped progress-bar-animated" 
+            role="progressbar" 
+            aria-valuenow="75" 
+            aria-valuemin="0" 
+            aria-valuemax="100" 
+            style={{width: '75%', margin: '0 auto'}}>
+          </div>
+
+
+        </div>
+        </div>
     }
   }
 
@@ -170,7 +191,7 @@ class App extends Component {
           user={this.state.user}
         />
         
-        {this.securePieline()}
+        {this.securePipeline(this.state.email, this.state.user)}
 
          
 

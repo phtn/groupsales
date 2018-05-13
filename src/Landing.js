@@ -3,7 +3,7 @@ import React from 'react'
 export default props => (
   <div>
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
-      <p className="navbar-brand" href="">Clarion Group Sales</p>
+      <p className="navbar-brand" style={{marginTop: 10}}>Clarion Group Sales</p>
       <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
       </button>
@@ -14,7 +14,7 @@ export default props => (
             <a className="nav-link" href=""><span className="sr-only">(current)</span></a>
         </li>
         <li className="nav-item">
-            - secured server -
+        <span className="badge badge-pill badge-success">secured server</span>
         </li>
         <li className="nav-item">
             
