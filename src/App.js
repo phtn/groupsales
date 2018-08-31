@@ -20,6 +20,8 @@ class App extends Component {
       user: null
     }
   }
+
+ 
   
   signInToGoogle(){
     auth.signInWithPopup(provider).then(function(result) {
@@ -67,7 +69,7 @@ class App extends Component {
       
       for (let item in items){
         newState.push({
-          id: new Date(item),
+          id: items[item].createdAt,
           name: items[item].name,
           email: items[item].email,
           phone: items[item].phone,
@@ -96,6 +98,8 @@ class App extends Component {
       }
     
     })
+
+    
     
   }
 

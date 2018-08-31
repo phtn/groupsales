@@ -7,6 +7,22 @@
 
 // To learn more about the benefits of this model, read https://goo.gl/KwvDNy.
 // This link also includes instructions on opting out of this behavior.
+import Fire from './Fire'
+
+const dbRef = Fire.database().ref('groups')
+let lastItem = dbRef.orderByKey().limitToLast(1)
+
+function sendNotification(){
+  lastItem.on('child_added', function(data){
+    if(Notification.permission !== 'default'){
+      new Notification('Clarion Sales', {
+        body: 'New inquiry from ' + data.val().name,
+        tag: data.val().key
+      })
+    }
+  })
+  
+}
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -19,7 +35,8 @@ const isLocalhost = Boolean(
 );
 
 export default function register() {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  if (process.env.NODE_ENV === 'development' && 'serviceWorker' in navigator) {
+    // console.log('test')
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location);
     if (publicUrl.origin !== window.location.origin) {
@@ -40,9 +57,63 @@ export default function register() {
         // service worker/PWA documentation.
         navigator.serviceWorker.ready.then(() => {
           console.log(
-            'This web app is being served cache-first by a service ' +
-              'worker. To learn more, visit https://goo.gl/SC7cgQ'
+            'sw ready'
           );
+          function askPermission() {
+            return new Promise(function(resolve, reject) {
+              const permissionResult = Notification.requestPermission(function(result) {
+                resolve(result);
+                // console.log('subscribed')
+              });
+          
+              if (permissionResult) {
+                permissionResult.then(resolve, reject);
+              }
+            })
+            .then(function(permissionResult) {
+              if (permissionResult !== 'granted') {
+                throw new Error('We weren\'t granted permission.');
+              }
+            });
+          }
+          askPermission()
+          // PUBLIC
+          // BHe4y-IjVv1mrk8WmGRehehN-TuUpDvCnQHz61VCTfEc8enkcf229kRkvuThrVhhMoYGvloZYRXiYSHpGSIivHs
+
+          // PRIVATE
+          // RY1DokWmdJfnxCTl7DGFXttViMIr5vc1C4les3_0Hzw
+
+          function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+              .replace(/-/g, '+')
+              .replace(/_/g, '/')
+            ;
+            const rawData = window.atob(base64);
+            return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+          }
+
+          function subscribeUserToPush() {
+            return navigator.serviceWorker.register('service-worker.js')
+            .then(function(registration) {
+              const subscribeOptions = {
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(
+                  'BHe4y-IjVv1mrk8WmGRehehN-TuUpDvCnQHz61VCTfEc8enkcf229kRkvuThrVhhMoYGvloZYRXiYSHpGSIivHs'
+                )
+              };
+          
+              return registration.pushManager.subscribe(subscribeOptions);
+            })
+            .then(function(pushSubscription) {
+              // console.log('Received PushSubscription: ', JSON.stringify(pushSubscription));
+              sendNotification( )
+              return pushSubscription;
+            });
+          }
+
+          subscribeUserToPush()
+
         });
       } else {
         // Is not local host. Just register service worker
